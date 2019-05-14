@@ -6,7 +6,17 @@ MOVE_LEFT, MOVE_RIGHT = 6, 7
 JUMP, SQUAT = 4, 5
 
 
-def _joy_state_to_action_space():
+def init_joystick():
+    pygame.joystick.init()
+    try:
+        joy = pygame.joystick.Joystick(0)
+        joy.init()
+        return joy
+    except pygame.error:
+        return None
+
+
+def _joy_state_to_action_space(joystick):
     pass
 
 
@@ -29,8 +39,8 @@ def _keyboard_state_to_action_space():
     return pushed_keys
 
 
-def get_player_input(joy=False):
-    if joy:
-        return _joy_state_to_action_space()
+def get_player_input(joy=None):
+    if joy is not None:
+        return _joy_state_to_action_space(joy)
     else:
         return _keyboard_state_to_action_space()
