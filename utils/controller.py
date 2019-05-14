@@ -46,20 +46,20 @@ def _joy_state_to_action_space(joystick):
 
     x, y = _get_movement_state(joystick)
 
-    if x == -1:
+    if x < -0.5:
         pushed_keys[MOVE_LEFT] = 1
         pushed_keys[MOVE_RIGHT] = 0
-    elif x == 1:
+    elif x > 0.5:
         pushed_keys[MOVE_LEFT] = 0
         pushed_keys[MOVE_RIGHT] = 1
     else:
         pushed_keys[MOVE_LEFT] = 0
         pushed_keys[MOVE_RIGHT] = 0
 
-    if y == -1:
+    if y < -0.5:
         pushed_keys[JUMP] = 0
         pushed_keys[SQUAT] = 1
-    elif y == 1:
+    elif y > 0.5:
         pushed_keys[JUMP] = 1
         pushed_keys[SQUAT] = 0
     else:
