@@ -1,9 +1,9 @@
 import pygame
 
-HIGH_KICK, LOW_KICK = 8, 0
-PUNCH, BLOCK = 1, 3
-MOVE_LEFT, MOVE_RIGHT = 6, 7
-JUMP, SQUAT = 4, 5
+_HIGH_KICK, _LOW_KICK = 8, 0
+_PUNCH, _BLOCK = 1, 3
+_MOVE_LEFT, _MOVE_RIGHT = 6, 7
+_JUMP, _SQUAT = 4, 5
 
 
 def init_joystick():
@@ -33,10 +33,10 @@ def _joy_state_to_action_space(joystick):
     """ Maps joystick buttons to action values. """
 
     button_to_action_map = {
-        0: HIGH_KICK,  # △
-        1: PUNCH,      # ◯
-        2: LOW_KICK,   # ✕
-        3: BLOCK,      # □
+        0: _HIGH_KICK,  # △
+        1: _PUNCH,      # ◯
+        2: _LOW_KICK,   # ✕
+        3: _BLOCK,      # □
     }
 
     pushed_keys = [0] * 12
@@ -47,24 +47,24 @@ def _joy_state_to_action_space(joystick):
     x, y = _get_movement_state(joystick)
 
     if x < -0.5:
-        pushed_keys[MOVE_LEFT] = 1
-        pushed_keys[MOVE_RIGHT] = 0
+        pushed_keys[_MOVE_LEFT] = 1
+        pushed_keys[_MOVE_RIGHT] = 0
     elif x > 0.5:
-        pushed_keys[MOVE_LEFT] = 0
-        pushed_keys[MOVE_RIGHT] = 1
+        pushed_keys[_MOVE_LEFT] = 0
+        pushed_keys[_MOVE_RIGHT] = 1
     else:
-        pushed_keys[MOVE_LEFT] = 0
-        pushed_keys[MOVE_RIGHT] = 0
+        pushed_keys[_MOVE_LEFT] = 0
+        pushed_keys[_MOVE_RIGHT] = 0
 
     if y < -0.5:
-        pushed_keys[JUMP] = 0
-        pushed_keys[SQUAT] = 1
+        pushed_keys[_JUMP] = 0
+        pushed_keys[_SQUAT] = 1
     elif y > 0.5:
-        pushed_keys[JUMP] = 1
-        pushed_keys[SQUAT] = 0
+        pushed_keys[_JUMP] = 1
+        pushed_keys[_SQUAT] = 0
     else:
-        pushed_keys[JUMP] = 0
-        pushed_keys[SQUAT] = 0
+        pushed_keys[_JUMP] = 0
+        pushed_keys[_SQUAT] = 0
 
     return pushed_keys
 
@@ -75,15 +75,15 @@ def _keyboard_state_to_action_space():
     pushed_keys = [0] * 12
     keys = pygame.key.get_pressed()
 
-    pushed_keys[JUMP] = keys[pygame.K_UP] or keys[pygame.K_w]
-    pushed_keys[SQUAT] = keys[pygame.K_DOWN] or keys[pygame.K_s]
-    pushed_keys[MOVE_LEFT] = keys[pygame.K_LEFT] or keys[pygame.K_a]
-    pushed_keys[MOVE_RIGHT] = keys[pygame.K_RIGHT] or keys[pygame.K_d]
+    pushed_keys[_JUMP] = keys[pygame.K_UP] or keys[pygame.K_w]
+    pushed_keys[_SQUAT] = keys[pygame.K_DOWN] or keys[pygame.K_s]
+    pushed_keys[_MOVE_LEFT] = keys[pygame.K_LEFT] or keys[pygame.K_a]
+    pushed_keys[_MOVE_RIGHT] = keys[pygame.K_RIGHT] or keys[pygame.K_d]
 
-    pushed_keys[HIGH_KICK] = keys[pygame.K_o]
-    pushed_keys[LOW_KICK] = keys[pygame.K_l]
-    pushed_keys[PUNCH] = keys[pygame.K_i]
-    pushed_keys[BLOCK] = keys[pygame.K_u]
+    pushed_keys[_HIGH_KICK] = keys[pygame.K_o]
+    pushed_keys[_LOW_KICK] = keys[pygame.K_l]
+    pushed_keys[_PUNCH] = keys[pygame.K_i]
+    pushed_keys[_BLOCK] = keys[pygame.K_u]
 
     return pushed_keys
 
