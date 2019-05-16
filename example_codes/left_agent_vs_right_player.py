@@ -5,7 +5,11 @@ import numpy as np
 import pygame
 import retro
 
-from utils import controller
+if __name__ == '__main__' and __package__ is None:
+    import sys, os
+    sys.path.append(os.path.dirname(sys.path[0]))
+    from utils import controller
+    sys.path.pop()
 
 
 ENV_NAME = 'MortalKombatII-Genesis'
@@ -42,8 +46,8 @@ def render(disp, obs):
 
 
 # Dummy function
-def get_agent_action(observation):
-    return env.action_space.sample()[:12].tolist()
+def get_agent_action(observation, act_space):
+    return act_space.sample()[:12].tolist()
 
 
 def main():
@@ -60,7 +64,7 @@ def main():
         render(display, obs)
 
         obs, _, done, _ = env.step(
-            get_agent_action(obs) + controller.get_player_input(joy)
+            get_agent_action(obs, env.action_space) + controller.get_player_input(joy)
         )
 
         sleep(1 / 45)
