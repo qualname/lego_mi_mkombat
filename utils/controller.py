@@ -6,10 +6,10 @@ _MOVE_LEFT, _MOVE_RIGHT = 6, 7
 _JUMP, _SQUAT = 4, 5
 
 
-def init_joystick():
+def init_joystick(idx=0):
     pygame.joystick.init()
     try:
-        joy = pygame.joystick.Joystick(0)
+        joy = pygame.joystick.Joystick(idx)
         joy.init()
         return joy
     except pygame.error:
@@ -32,12 +32,14 @@ def _get_movement_state(joystick):
 def _joy_state_to_action_space(joystick):
     """ Maps joystick buttons to action values. """
 
+    # fmt: off
     button_to_action_map = {
         0: _HIGH_KICK,  # △
         1: _PUNCH,      # ◯
         2: _LOW_KICK,   # ✕
         3: _BLOCK,      # □
     }
+    # fmt: on
 
     pushed_keys = [0] * 12
 
