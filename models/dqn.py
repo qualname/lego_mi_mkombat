@@ -5,6 +5,8 @@ import random
 import torch
 import torch.nn.functional as F
 
+GAMMA = 0.99  # discount factor
+
 
 class ReplayMemory:
     def __init__(self, max_len, batch_size):
@@ -56,3 +58,21 @@ class QNN(torch.nn.Module):
 
         with torch.no_grad():
             return self.forward(state).max(1).indices
+
+
+def train(model, memory, optimizer):
+    batch = memory.sample()
+    states, actions, rewards, next_states, done = map(torch.cat, zip(*batch))
+
+    q_values = model(states).gather(1, actions.unsqueeze(1))
+
+    q_values_from_next_state = model(next_states).max(1).values.detach()
+    expected_q_values = rewards + GAMMA * q_values_from_next_state * (1 - done)
+
+    loss = F.smooth_l1_loss(expected_q_vals.unsqueeze(1), q_values)
+
+    optimizer.zero_grad()
+    loss.backward()
+    # for p in model.parameters():  # TODO: test if helps
+    #     p.grad.data.clamp_(-1, +1)
+    optimizer.step()
