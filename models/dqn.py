@@ -51,4 +51,8 @@ class QNN(torch.nn.Module):
         return self.head(x)
 
     def sample_action(self, state, act_space, epsilon):
-        pass
+        if random.random() < epsilon:
+            return torch.tensor([random.randrange(act_space.n)], device=state.device)
+
+        with torch.no_grad():
+            return self.forward(state).max(1).indices
