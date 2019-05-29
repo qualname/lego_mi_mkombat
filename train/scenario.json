@@ -1,0 +1,22 @@
+{
+  "done": {
+    "condition": "any",
+    "variables": {
+      "enemy_health": { "op": "zero" },
+      "health":       { "op": "zero" }
+    }
+  },
+
+  "reward": {
+    "variables": {
+      "enemy_health": { "measurement": "delta",
+                        "penalty": -1.0 },
+      "health":       { "measurement": "delta",
+                        "penalty": 1.0 },
+      "wins": {
+        "measurement": "delta",
+        "reward": 100.0
+      }
+    }
+  }
+}
