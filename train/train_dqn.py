@@ -52,12 +52,12 @@ def main():
         use_restricted_actions=retro.Actions.ALL,
         state=str(config.STATE_PATH.resolve()),
         players=player_count,
-        scenario=config.SCENARIO_PATH,
+        scenario=str(config.SCENARIO_PATH.resolve()),
     )
     env.reset()
 
-    left_action_space = move_lists.ActionSpace(left_char, env.action_space)
-    # right_action_space = move_lists.ActionSpace(right_char, env.action_space)
+    left_action_space = move_lists.ActionSpace(left_char, env.action_space, 1)
+    # right_action_space = move_lists.ActionSpace(right_char, env.action_space, 1)
 
     qnn, memory, optimizer = init(env.get_screen(), left_action_space)
 
