@@ -1,12 +1,15 @@
 import retro
+import torch
 
-import config
-try:
-    from ..utils import move_lists
-except ValueError:
+if __name__ == '__main__' and __package__ is None:
     import sys, os
     sys.path.append(os.path.dirname(sys.path[0]))
-    from utils import move_lists
+
+import config
+from utils import move_lists
+
+if __name__ == '__main__' and __package__ is None:
+    sys.path.pop()
 
 
 if not config.STATE_PATH.is_file():
