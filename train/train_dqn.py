@@ -40,11 +40,14 @@ def init(init_observation, action_space):
     h, w, *_ = init_observation.shape
 
     qnn = dqn.QNN(h, w, input_frames=1, outputs=action_space.n).to(device)
+    target_nn = dqn.QNN(h, w, input_frames=1, outputs=action_space.n).to(device)
+    target_nn.load_state_dict(qnn.state_dict())
+    target_nn.eval()
 
     memory = dqn.ReplayMemory(max_len=config.BUFFER_LIMIT, batch_size=config.BATCH_SIZE)
     optimizer = torch.optim.Adam(qnn.parameters(), lr=config.LEARNING_RATE)
 
-    return qnn, memory, optimizer
+    return qnn, target_nn, memory, optimizer
 
 
 def obs_to_gpu(screen):
@@ -69,7 +72,7 @@ def main():
     left_action_space = move_lists.ActionSpace(left_char, env.action_space, 1)
     # right_action_space = move_lists.ActionSpace(right_char, env.action_space, 1)
 
-    qnn, memory, optimizer = init(env.get_screen(), left_action_space)
+    qnn, target_nn, memory, optimizer = init(env.get_screen(), left_action_space)
 
     for episode in range(10_000):
         temperature = config.MIN_EPSILON + (1.0 - config.MIN_EPSILON) / math.exp(
@@ -100,8 +103,11 @@ def main():
 
             observation = next_observation
 
-            if len(memory) > config.BUFFER_LIMIT // 10:
-                dqn.train(qnn, memory, optimizer)
+        if len(memory) > config.BUFFER_LIMIT // 10:
+            dqn.train(qnn, target_nn, memory, optimizer)
+
+        if episode % config.UPDATE_FREQ == 0:
+            target_nn.load_state_dict(qnn.state_dict())
 
         # TODO: plot
 

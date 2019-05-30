@@ -60,13 +60,16 @@ class QNN(torch.nn.Module):
             return self.forward(state).max(1).indices
 
 
-def train(model, memory, optimizer):
+def train(model, target_model, memory, optimizer):
     batch = memory.sample()
     states, actions, rewards, next_states, done = map(torch.cat, zip(*batch))
 
     q_values = model(states).gather(1, actions.unsqueeze(1))
 
-    q_values_from_next_state = model(next_states).max(1).values.detach()
+    q_values_from_next_state = target_model(next_states).gather(
+        1, torch.max(model(next_states), 1).indices.unsqueeze(1)
+    )
+    q_values_from_next_state = q_values_from_next_state.squeeze().detach()
     expected_q_values = rewards + GAMMA * q_values_from_next_state * (1 - done)
 
     loss = F.smooth_l1_loss(expected_q_values.unsqueeze(1), q_values)
