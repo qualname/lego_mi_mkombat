@@ -98,7 +98,10 @@ def main():
 
             observation = next_observation
 
-        # TODO: train, plot
+            if len(memory) > config.BUFFER_LIMIT // 10:
+                dqn.train(qnn, memory, optimizer)
+
+        # TODO: plot
 
     env.close()
 if __name__ == '__main__':

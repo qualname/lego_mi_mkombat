@@ -69,7 +69,7 @@ def train(model, memory, optimizer):
     q_values_from_next_state = model(next_states).max(1).values.detach()
     expected_q_values = rewards + GAMMA * q_values_from_next_state * (1 - done)
 
-    loss = F.smooth_l1_loss(expected_q_vals.unsqueeze(1), q_values)
+    loss = F.smooth_l1_loss(expected_q_values.unsqueeze(1), q_values)
 
     optimizer.zero_grad()
     loss.backward()
