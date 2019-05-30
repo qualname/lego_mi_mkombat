@@ -1,4 +1,7 @@
+import math
+
 import retro
+import numpy
 import torch
 
 if __name__ == '__main__' and __package__ is None:
@@ -44,6 +47,13 @@ def init(init_observation, action_space):
     return qnn, memory, optimizer
 
 
+def obs_to_gpu(screen):
+    screen = screen.transpose((2, 0, 1))
+    screen = numpy.ascontiguousarray(screen, dtype=numpy.float32) / 255
+    screen = torch.from_numpy(screen)
+    return screen.unsqueeze(0).to(device)
+
+
 def main():
     player_count, left_char, right_char = get_state_info(config.STATE_PATH)
 
@@ -61,4 +71,35 @@ def main():
 
     qnn, memory, optimizer = init(env.get_screen(), left_action_space)
 
+    for episode in range(10_000):
+        temperature = config.MIN_EPSILON + (1.0 - config.MIN_EPSILON) / math.exp(episode / config.DECAY)
+
+        observation = env.reset()
+        observation = obs_to_gpu(observation)
+
+        done = False
+        while not done:
+            action_id = qnn.sample_action(observation, left_action_space, temperature)
+            actions = left_action_space.to_action_list(action_id.item())
+
+            next_observation, reward, done, _ = env.step(actions[0].tolist() + [0] * 12)
+            reward = reward[0] if player_count == 2 else reward
+            next_observation = obs_to_gpu(next_observation)
+
+            memory.push(
+                (
+                    observation,
+                    action_id,
+                    torch.tensor([reward], device=device, dtype=torch.float),
+                    next_observation,
+                    torch.tensor([done], device=device, dtype=torch.float),
+                )
+            )
+
+            observation = next_observation
+
+        # TODO: train, plot
+
     env.close()
+if __name__ == '__main__':
+    main()
