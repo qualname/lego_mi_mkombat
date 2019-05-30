@@ -72,7 +72,9 @@ def main():
     qnn, memory, optimizer = init(env.get_screen(), left_action_space)
 
     for episode in range(10_000):
-        temperature = config.MIN_EPSILON + (1.0 - config.MIN_EPSILON) / math.exp(episode / config.DECAY)
+        temperature = config.MIN_EPSILON + (1.0 - config.MIN_EPSILON) / math.exp(
+            episode / config.DECAY
+        )
 
         observation = env.reset()
         observation = obs_to_gpu(observation)
@@ -104,5 +106,7 @@ def main():
         # TODO: plot
 
     env.close()
+
+
 if __name__ == '__main__':
     main()
