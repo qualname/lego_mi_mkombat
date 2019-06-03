@@ -42,15 +42,22 @@ class QNN(torch.nn.Module):
         h = conv_output_size(conv_output_size(conv_output_size(input_height)))
         w = conv_output_size(conv_output_size(conv_output_size(input_width)))
 
-        self.fc4 = torch.nn.Linear(h * w * 32, 512)
-        self.head = torch.nn.Linear(512, outputs)
+        self.fc_adv = torch.nn.Linear(h * w * 32, 512)
+        self.adv = torch.nn.Linear(512, outputs)
+
+        self.fc_val = torch.nn.Linear(h * w * 32, 512)
+        self.val = torch.nn.Linear(512, 1)
 
     def forward(self, x):
         x = F.relu(self.bn1(self.conv1(x)))
         x = F.relu(self.bn2(self.conv2(x)))
         x = F.relu(self.bn3(self.conv3(x)))
-        x = F.relu(self.fc4(x.view(x.size(0), -1)))
-        return self.head(x)
+        x = x.view(x.size(0), -1)
+
+        advantage = self.adv(F.relu(self.fc_adv(x)))
+        value = self.val(F.relu(self.fc_val(x)))
+
+        return value + advantage - advantage.mean()
 
     def sample_action(self, state, act_space, epsilon):
         if random.random() < epsilon:
@@ -66,10 +73,7 @@ def train(model, target_model, memory, optimizer):
 
     q_values = model(states).gather(1, actions.unsqueeze(1))
 
-    q_values_from_next_state = target_model(next_states).gather(
-        1, torch.max(model(next_states), 1).indices.unsqueeze(1)
-    )
-    q_values_from_next_state = q_values_from_next_state.squeeze().detach()
+    q_values_from_next_state = target_model(next_states).max(1).values.detach()
     expected_q_values = rewards + GAMMA * q_values_from_next_state * (1 - done)
 
     loss = F.smooth_l1_loss(expected_q_values.unsqueeze(1), q_values)
