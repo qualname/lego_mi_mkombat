@@ -11,6 +11,13 @@ import segmenttree
 GAMMA = 0.99  # discount factor
 
 
+def pairwise(iterable):
+    from itertools import tee
+    a, b = tee(iterable)
+    next(b, None)
+    return zip(a, b)
+
+
 class ReplayMemory:
     def __init__(self, max_len, batch_size):
         self.memory = collections.deque(maxlen=max_len)
@@ -50,7 +57,14 @@ class PrioritizedReplayMemory:
         self.memory_pos = (self.memory_pos + 1) % self.max_len
 
     def sample(beta=0.4):
-        indices = ...  # TODO
+        prio_segment_len = self.sum_tree() / self.batch_size
+
+        indices = [
+            self.sum_tree.get_leaf_idx(
+                random.uniform(lower * prio_segment_len, upper * prio_segment_len)
+            )
+            for lower, upper in pairwise(range(self.batch_size))
+        ]
         samples = (memory[idx] for idx in indices)
 
         max_weight = (len(self.memory) * self.min_tree() / self.sum_tree()) ** (-beta)
@@ -69,8 +83,12 @@ class PrioritizedReplayMemory:
     def __len__(self):
         return len(self.memory)
 
-    def update(self):
-        pass
+    def update(self, indices, priorities):
+        for idx, prio in zip(indices, priorities):
+            self.sum_tree[idx] = prio * self.alpha
+            self.min_tree[idx] = prio * self.alpha
+        leafs = self.sum_tree.values[self.capacity:]
+        self.max_priority = max(leafs + [self.max_priority])
 
 
 class QNN(torch.nn.Module):

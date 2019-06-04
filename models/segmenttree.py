@@ -74,3 +74,14 @@ class SumSegmentTree(SegmentTree):
     def __call__(self, start=0, end=None):
         end = end or self.capacity
         return super().query(start, end)
+
+    def get_leaf_idx(self, pref_sum):
+        idx = 1
+        while idx < self.capacity:
+            curr = self.values[2 * idx]
+            if curr > pref_sum:
+                idx *= 2
+            else:
+                pref_sum -= curr
+                idx = idx * 2 + 1
+        return idx - self.capacity
