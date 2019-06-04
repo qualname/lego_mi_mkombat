@@ -50,7 +50,21 @@ class PrioritizedReplayMemory:
         self.memory_pos = (self.memory_pos + 1) % self.max_len
 
     def sample(beta=0.4):
-        pass
+        indices = ...  # TODO
+        samples = (memory[idx] for idx in indices)
+
+        max_weight = (len(self.memory) * self.min_tree() / self.sum_tree()) ** (-beta)
+
+        weights = np.array(
+            [
+                (len(self.memory) * self.sum_tree[idx] / self.sum_tree()) ** (-beta)
+                for idx in indices
+            ]
+        )
+
+        weights = weights / max_weight
+
+        return samples, weights, indices
 
     def __len__(self):
         return len(self.memory)
