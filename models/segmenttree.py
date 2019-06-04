@@ -7,7 +7,7 @@ class SegmentTree:
         self.operation = operation
         self.values = [neutral_elem] * (2 * self.capacity)
 
-    def query(self, start=0, end=self.capacity):
+    def query(self, start, end):
         return self._q_recursive(start, end - 1, 1, 0, self.capacity - 1)
 
     def _q_recursive(self, start, end, node, start_node, end_node):
@@ -56,3 +56,19 @@ class SegmentTree:
             self.values[idx] = self.operation(
                 self.values[2 * idx], self.values[2 * idx + 1]
             )
+
+
+class MinSegmentTree(SegmentTree):
+    def __init__(self, capacity):
+        super().__init__(capacity=capacity, operation=min, neutral_elem=float('inf'))
+
+    def __call__(self, start=0, end=self.capacity):
+        return super().query(start, end)
+
+
+class SumSegmentTree(SegmentTree):
+    def __init__(self, capacity):
+        super().__init__(capacity=capacity, operation=operator.add, neutral_elem=0.0)
+
+    def __call__(self, start=0, end=self.capacity):
+        return super().query(start, end)

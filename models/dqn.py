@@ -7,6 +7,7 @@ import torch.nn.functional as F
 
 import segmenttree
 
+
 GAMMA = 0.99  # discount factor
 
 
@@ -36,15 +37,15 @@ class PrioritizedReplayMemory:
         self.alpha = alpha
 
         capacity = 2 ** math.ceil(math.log2(batch_size))
-        self.sum_tree = segmenttree.SegmentTree(capacity, operator.add, neutral_elem=0)
-        self.min_tree = segmenttree.SegmentTree(capacity, min, neutral_elem=float('inf'))
+        self.sum_tree = segmenttree.SumSegmentTree(capacity)
+        self.min_tree = segmenttree.MinSegmentTree(capacity)
         self.max_priority = 1.0
 
     def push(self, transition):
         self.memory[self.memory_pos] = transition
 
-        self.sum_pos[self.memory_pos] = self.max_priority ** self.alpha
-        self.min_pos[self.memory_pos] = self.max_priority ** self.alpha
+        self.sum_tree[self.memory_pos] = self.max_priority ** self.alpha
+        self.min_tree[self.memory_pos] = self.max_priority ** self.alpha
 
         self.memory_pos = (self.memory_pos + 1) % self.max_len
 
