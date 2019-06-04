@@ -5,6 +5,8 @@ import random
 import torch
 import torch.nn.functional as F
 
+import segmenttree
+
 GAMMA = 0.99  # discount factor
 
 
@@ -21,6 +23,39 @@ class ReplayMemory:
 
     def __len__(self):
         return len(self.memory)
+
+
+class PrioritizedReplayMemory:
+    def __init__(self, max_len, batch_size, alpha=0.6):
+        # self.memory = collections.deque(maxlen=max_len)
+        self.memory = [None] * max_len
+        self.memory_pos = 0
+        self.max_len = max_len
+
+        self.batch_size = batch_size
+        self.alpha = alpha
+
+        capacity = 2 ** math.ceil(math.log2(batch_size))
+        self.sum_tree = segmenttree.SegmentTree(capacity, operator.add, neutral_elem=0)
+        self.min_tree = segmenttree.SegmentTree(capacity, min, neutral_elem=float('inf'))
+        self.max_priority = 1.0
+
+    def push(self, transition):
+        self.memory[self.memory_pos] = transition
+
+        self.sum_pos[self.memory_pos] = self.max_priority ** self.alpha
+        self.min_pos[self.memory_pos] = self.max_priority ** self.alpha
+
+        self.memory_pos = (self.memory_pos + 1) % self.max_len
+
+    def sample(beta=0.4):
+        pass
+
+    def __len__(self):
+        return len(self.memory)
+
+    def update(self):
+        pass
 
 
 class QNN(torch.nn.Module):
