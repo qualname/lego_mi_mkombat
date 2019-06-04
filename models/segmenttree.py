@@ -62,7 +62,8 @@ class MinSegmentTree(SegmentTree):
     def __init__(self, capacity):
         super().__init__(capacity=capacity, operation=min, neutral_elem=float('inf'))
 
-    def __call__(self, start=0, end=self.capacity):
+    def __call__(self, start=0, end=None):
+        end = end or self.capacity
         return super().query(start, end)
 
 
@@ -70,5 +71,6 @@ class SumSegmentTree(SegmentTree):
     def __init__(self, capacity):
         super().__init__(capacity=capacity, operation=operator.add, neutral_elem=0.0)
 
-    def __call__(self, start=0, end=self.capacity):
+    def __call__(self, start=0, end=None):
+        end = end or self.capacity
         return super().query(start, end)
