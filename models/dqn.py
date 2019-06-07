@@ -88,7 +88,7 @@ class PrioritizedReplayMemory:
         for idx, prio in zip(indices, priorities):
             self.sum_tree[idx] = prio * self.alpha
             self.min_tree[idx] = prio * self.alpha
-        leafs = self.sum_tree.values[self.capacity:]
+        leafs = self.sum_tree.values[self.sum_tree.capacity :]
         self.max_priority = max(leafs + [self.max_priority])
 
 
