@@ -57,7 +57,7 @@ class PrioritizedReplayMemory:
 
         self.memory_pos = (self.memory_pos + 1) % self.max_len
 
-    def sample(self, beta=0.4):
+    def sample(self, beta):
         prio_segment_len = self.sum_tree() / self.batch_size
 
         indices = [
@@ -136,8 +136,15 @@ class QNN(torch.nn.Module):
             return self.forward(state).max(1).indices
 
 
-def train(model, target_model, memory, optimizer):
-    batch = memory.sample()
+def train(model, target_model, memory, optimizer, prio_exp_rep_beta=0.4):
+    USE_PER = isinstance(memory, PrioritizedReplayMemory)
+
+    if USE_PER:
+        batch, weights, indices = memory.sample(prio_exp_rep_beta)
+        weights = torch.tensor(weights, dtype=torch.float, device=states[0].device)
+    else:
+        batch = memory.sample()
+
     states, actions, rewards, next_states, done = map(torch.cat, zip(*batch))
 
     q_values = model(states).gather(1, actions.unsqueeze(1))
@@ -145,10 +152,21 @@ def train(model, target_model, memory, optimizer):
     q_values_from_next_state = target_model(next_states).max(1).values.detach()
     expected_q_values = rewards + GAMMA * q_values_from_next_state * (1 - done)
 
-    loss = F.smooth_l1_loss(expected_q_values.unsqueeze(1), q_values)
+    if USE_PER:
+        loss = (
+            F.smooth_l1_loss(expected_q_values.unsqueeze(1), q_values, reduction='none')
+            * weights
+        )
+        priorities = (loss + 1e-6).data  # TODO: choose epsilon
+        loss = loss.mean()
+    else:
+        loss = F.smooth_l1_loss(expected_q_values.unsqueeze(1), q_values, reduction='mean')
 
     optimizer.zero_grad()
     loss.backward()
     # for p in model.parameters():  # TODO: test if helps
     #     p.grad.data.clamp_(-1, +1)
     optimizer.step()
+
+    if USE_PER:
+        memory.update(indices, priorities.cpu().numpy())

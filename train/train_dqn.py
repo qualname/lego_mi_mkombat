@@ -44,7 +44,9 @@ def init(init_observation, action_space):
     target_nn.load_state_dict(qnn.state_dict())
     target_nn.eval()
 
-    memory = dqn.ReplayMemory(max_len=config.BUFFER_LIMIT, batch_size=config.BATCH_SIZE)
+    memory = dqn.PrioritizedReplayMemory(
+        max_len=config.BUFFER_LIMIT, batch_size=config.BATCH_SIZE
+    )
     optimizer = torch.optim.Adam(qnn.parameters(), lr=config.LEARNING_RATE)
 
     return qnn, target_nn, memory, optimizer
@@ -107,7 +109,8 @@ def main():
             observation = next_observation
 
         if len(memory) > config.BUFFER_LIMIT // 10:
-            dqn.train(qnn, target_nn, memory, optimizer)
+            beta = 0.4  # TODO: annealing 0.4 -> 1.0
+            dqn.train(qnn, target_nn, memory, optimizer, beta)
 
         if episode % config.UPDATE_FREQ == 0:
             target_nn.load_state_dict(qnn.state_dict())
