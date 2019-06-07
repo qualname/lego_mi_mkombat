@@ -56,7 +56,7 @@ class PrioritizedReplayMemory:
 
         self.memory_pos = (self.memory_pos + 1) % self.max_len
 
-    def sample(beta=0.4):
+    def sample(self, beta=0.4):
         prio_segment_len = self.sum_tree() / self.batch_size
 
         indices = [
