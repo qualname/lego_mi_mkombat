@@ -66,7 +66,7 @@ class PrioritizedReplayMemory:
             )
             for lower, upper in pairwise(range(self.batch_size))
         ]
-        samples = (memory[idx] for idx in indices)
+        samples = (self.memory[idx] for idx in indices)
 
         max_weight = (len(self.memory) * self.min_tree() / self.sum_tree()) ** (-beta)
 
