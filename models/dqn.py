@@ -5,7 +5,7 @@ import random
 import torch
 import torch.nn.functional as F
 
-import segmenttree
+from . import segmenttree
 
 
 GAMMA = 0.99  # discount factor
@@ -43,7 +43,7 @@ class PrioritizedReplayMemory:
         self.batch_size = batch_size
         self.alpha = alpha
 
-        capacity = 2 ** math.ceil(math.log2(batch_size))
+        capacity = 2 ** math.ceil(math.log2(self.max_len))
         self.sum_tree = segmenttree.SumSegmentTree(capacity)
         self.min_tree = segmenttree.MinSegmentTree(capacity)
         self.max_priority = 1.0
