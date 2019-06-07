@@ -1,7 +1,8 @@
 import collections
 import math
-import random
 
+import numpy
+import numpy.random as random
 import torch
 import torch.nn.functional as F
 
@@ -69,7 +70,7 @@ class PrioritizedReplayMemory:
 
         max_weight = (len(self.memory) * self.min_tree() / self.sum_tree()) ** (-beta)
 
-        weights = np.array(
+        weights = numpy.array(
             [
                 (len(self.memory) * self.sum_tree[idx] / self.sum_tree()) ** (-beta)
                 for idx in indices
@@ -129,7 +130,7 @@ class QNN(torch.nn.Module):
 
     def sample_action(self, state, act_space, epsilon):
         if random.random() < epsilon:
-            return torch.tensor([random.randrange(act_space.n)], device=state.device)
+            return torch.tensor([random.randint(0, act_space.n)], device=state.device)
 
         with torch.no_grad():
             return self.forward(state).max(1).indices
