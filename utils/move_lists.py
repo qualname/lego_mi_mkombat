@@ -1,4 +1,3 @@
-import gym
 import numpy
 
 from .controller import (
@@ -29,9 +28,6 @@ _TO_IDX = {
 }
 
 
-Type_MB = gym.spaces.multi_binary.MultiBinary
-
-
 class ActionSpace:
     """ A character-specific action space.
 
@@ -41,14 +37,14 @@ class ActionSpace:
     MultiBinary.
     """
 
-    def __init__(self, char_name: str, orig_act_space: Type_MB, frame_cnt: int) -> None:
+    def __init__(self, char_name: str, num_of_outputs: int, in_frames: int) -> None:
         self.char_name = char_name
-        self.frame_cnt = frame_cnt
+        self.in_frames = in_frames
         self.n = len(_TO_IDX) + len(_COMBOS[char_name])
-        self.orig_n = orig_act_space.n
+        self.orig_n = num_of_outputs
 
     def to_action_list(self, move_id: int) -> numpy.ndarray:
-        act = numpy.zeros((self.frame_cnt, self.orig_n), dtype=numpy.int8)
+        act = numpy.zeros((self.in_frames, self.orig_n), dtype=numpy.int8)
 
         if move_id < len(_TO_IDX):
             idx = _TO_IDX[move_id]

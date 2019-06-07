@@ -69,8 +69,11 @@ def main():
     )
     env.reset()
 
-    left_action_space = move_lists.ActionSpace(left_char, env.action_space, 1)
-    # right_action_space = move_lists.ActionSpace(right_char, env.action_space, 1)
+    left_action_space = move_lists.ActionSpace(
+        char_name=left_char,
+        num_of_outputs=env.action_space.n // player_count,
+        in_frames=1,
+    )
 
     qnn, target_nn, memory, optimizer = init(env.get_screen(), left_action_space)
 
