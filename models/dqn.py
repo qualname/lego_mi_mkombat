@@ -154,13 +154,13 @@ def train(model, target_model, memory, optimizer, prio_exp_rep_beta=0.4):
 
     if USE_PER:
         loss = (
-            F.smooth_l1_loss(expected_q_values.unsqueeze(1), q_values, reduction='none')
+            F.smooth_l1_loss(expected_q_values, q_values.squeeze(), reduction='none')
             * weights
         )
         priorities = (loss + 1e-6).data  # TODO: choose epsilon
         loss = loss.mean()
     else:
-        loss = F.smooth_l1_loss(expected_q_values.unsqueeze(1), q_values, reduction='mean')
+        loss = F.smooth_l1_loss(expected_q_values, q_values.squeeze(), reduction='mean')
 
     optimizer.zero_grad()
     loss.backward()
