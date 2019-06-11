@@ -64,7 +64,7 @@ class PrioritizedReplayMemory:
             self.sum_tree.get_leaf_idx(
                 numpy.random.uniform(lower * prio_segment_len, upper * prio_segment_len)
             )
-            for lower, upper in pairwise(range(self.batch_size))
+            for lower, upper in pairwise(range(self.batch_size + 1))
         ]
         samples = (self.memory[idx] for idx in indices)
 
