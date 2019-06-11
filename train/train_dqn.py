@@ -150,7 +150,7 @@ def main():
                 break
 
         if len(memory) > config.BUFFER_LIMIT // 10:
-            beta = 0.4  # TODO: annealing 0.4 -> 1.0
+            beta = min(1.0, 0.4 + 0.6 * episode / config.BETA_MAX_EP)
             dqn.train(qnn, target_nn, memory, optimizer, beta)
 
         if episode % config.UPDATE_FREQ == 0:
