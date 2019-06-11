@@ -17,6 +17,23 @@ LOW_PUNCH = _PUNCH
 HIGH_PUNCH = _PUNCH
 
 _COMBOS = {
+    'JohnnyCage': [
+        [BACK, FORWARD, _LOW_KICK],
+        [BACK, _SQUAT, FORWARD, [FORWARD, LOW_PUNCH]],
+        [FORWARD, _SQUAT, BACK, [BACK, HIGH_PUNCH]],
+        [BACK, _SQUAT, BACK, HIGH_PUNCH],
+        [BACK, _SQUAT, BACK, HIGH_PUNCH],
+        [[_LOW_KICK, _HIGH_KICK]]
+    ],
+    'KungLao': [
+        [_SQUAT, _JUMP],
+        [BACK, FORWARD, [FORWARD, LOW_PUNCH]]
+    ],
+    'LiuKang': [
+        [FORWARD, FORWARD, [FORWARD, HIGH_PUNCH]],
+        [FORWARD, FORWARD, LOW_PUNCH],
+        [FORWARD, FORWARD, _HIGH_KICK]
+    ],
     'SubZero': [
         [_SQUAT, FORWARD, [FORWARD, LOW_PUNCH]],
         [_SQUAT, BACK, [BACK, _LOW_KICK]],
