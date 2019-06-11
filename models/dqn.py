@@ -1,8 +1,8 @@
 import collections
 import math
+import random
 
 import numpy
-import numpy.random as random
 import torch
 import torch.nn.functional as F
 
@@ -62,7 +62,7 @@ class PrioritizedReplayMemory:
 
         indices = [
             self.sum_tree.get_leaf_idx(
-                random.uniform(lower * prio_segment_len, upper * prio_segment_len)
+                numpy.random.uniform(lower * prio_segment_len, upper * prio_segment_len)
             )
             for lower, upper in pairwise(range(self.batch_size))
         ]
@@ -130,7 +130,7 @@ class QNN(torch.nn.Module):
 
     def sample_action(self, state, act_space, epsilon):
         if random.random() < epsilon:
-            return torch.tensor([random.randint(0, act_space.n)], device=state.device)
+            return torch.randint(act_space.n, (1, ), device=state.device)
 
         with torch.no_grad():
             return self.forward(state).max(1).indices
