@@ -39,8 +39,8 @@ def get_state_info(state_path):
 def init(init_observation, action_space):
     h, w, *_ = init_observation.shape
 
-    qnn = dqn.QNN(h, w, input_frames=1, outputs=action_space.n).to(device)
-    target_nn = dqn.QNN(h, w, input_frames=1, outputs=action_space.n).to(device)
+    qnn = dqn.QNN(h, w, input_frames=config.BUNDLED_FRAMES, outputs=action_space.n).to(device)
+    target_nn = dqn.QNN(h, w, input_frames=config.BUNDLED_FRAMES, outputs=action_space.n).to(device)
     target_nn.load_state_dict(qnn.state_dict())
     target_nn.eval()
 
@@ -102,7 +102,7 @@ def main():
     left_action_space = move_lists.ActionSpace(
         char_name=left_char,
         num_of_outputs=env.action_space.n // player_count,
-        in_frames=1,
+        in_frames=config.BUNDLED_FRAMES,
     )
 
     qnn, target_nn, memory, optimizer = init(env.get_screen(), left_action_space)
