@@ -141,7 +141,6 @@ def train(model, target_model, memory, optimizer, prio_exp_rep_beta=0.4):
 
     if USE_PER:
         batch, weights, indices = memory.sample(prio_exp_rep_beta)
-        weights = torch.tensor(weights, dtype=torch.float, device=states[0].device)
     else:
         batch = memory.sample()
 
@@ -153,6 +152,7 @@ def train(model, target_model, memory, optimizer, prio_exp_rep_beta=0.4):
     expected_q_values = rewards + GAMMA * q_values_from_next_state * (1 - done)
 
     if USE_PER:
+        weights = torch.tensor(weights, dtype=torch.float, device=states[0].device)
         loss = (
             F.smooth_l1_loss(expected_q_values, q_values.squeeze(), reduction='none')
             * weights
