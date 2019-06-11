@@ -59,6 +59,33 @@ def obs_to_gpu(screen):
     return screen.to(device)
 
 
+def step(env, left_actions, right_actions=None, players=2):
+    if players == 1:
+        right_actions = numpy.ndarray((len(left_actions), 0))
+    elif players == 2 and right_actions is None:
+        right_actions = numpy.zeros_like(left_actions)
+
+    if len(left_actions) == 1:
+        left, right = left_actions[0], right_actions[0]
+        observation, reward, done, _ = env.step(left.tolist() + right.tolist())
+        return obs_to_gpu(observation), reward, done
+
+    states = (
+        env.step(left.tolist() + right.tolist())
+        for left, right in zip(left_actions, right_actions)
+    )
+    observations, rewards, dones, _ = zip(*states)
+
+    observations = torch.cat([obs_to_gpu(ob) for ob in observations], 0)
+    if players == 2:
+        reward = tuple(map(sum, zip(*rewards)))
+    else:
+        reward = tuple(sum(rewards), float('inf'))
+    done = any(dones)
+
+    return observations, reward, done
+
+
 def main():
     player_count, left_char, right_char = get_state_info(config.STATE_PATH)
 
@@ -84,8 +111,8 @@ def main():
             episode / config.DECAY
         )
 
-        observation = env.reset()
-        observation = obs_to_gpu(observation)
+        env.reset()
+        observation, *_ = step(env, DO_NOTHING_X_TIMES, players=player_count)  # TODO
 
         done = False
         while not done:
@@ -94,9 +121,8 @@ def main():
             )
             actions = left_action_space.to_action_list(action_id.item())
 
-            next_observation, reward, done, _ = env.step(actions[0].tolist() + [0] * 12)
+            next_observation, reward, done = step(env, actions, players=player_count)
             reward = reward[0] if player_count == 2 else reward
-            next_observation = obs_to_gpu(next_observation)
 
             memory.push(
                 (
