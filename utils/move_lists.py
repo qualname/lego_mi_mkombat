@@ -11,8 +11,8 @@ from .controller import (
     _SQUAT,
 )
 
-FORWARD = _MOVE_RIGHT  # TODO
-BACK = _MOVE_LEFT      # TODO
+FORWARD = -1
+BACK = -2
 LOW_PUNCH = _PUNCH
 HIGH_PUNCH = _PUNCH
 
@@ -69,7 +69,7 @@ class ActionSpace:
         else:
             indices = _COMBOS[self.char_name][move_id - len(_TO_IDX)]
             for i, idx in enumerate(indices):
-                idx = self.resolve_forwards_and_backs(idx)
+                idx = self._resolve_forwards_and_backs(idx)
                 act[i, idx] = 1
 
         return act
@@ -77,7 +77,7 @@ class ActionSpace:
     def do_nothing(self) -> numpy.ndarray:
         return numpy.zeros((self.in_frames, self.orig_n), dtype=numpy.int8)
 
-    def resolve_forwards_and_backs(self, command):
+    def _resolve_forwards_and_backs(self, command):
         if isinstance(command, list):
             if FORWARD in command:
                 idx = command.index(FORWARD)

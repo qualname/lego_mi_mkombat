@@ -130,7 +130,7 @@ class QNN(torch.nn.Module):
 
     def sample_action(self, state, act_space, epsilon):
         if random.random() < epsilon:
-            return torch.randint(act_space.n, (1, ), device=state.device)
+            return torch.randint(act_space.n, (1,), device=state.device)
 
         with torch.no_grad():
             return self.forward(state).max(1).indices

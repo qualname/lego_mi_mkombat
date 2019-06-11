@@ -39,8 +39,12 @@ def get_state_info(state_path):
 def init(init_observation, action_space):
     h, w, *_ = init_observation.shape
 
-    qnn = dqn.QNN(h, w, input_frames=config.BUNDLED_FRAMES, outputs=action_space.n).to(device)
-    target_nn = dqn.QNN(h, w, input_frames=config.BUNDLED_FRAMES, outputs=action_space.n).to(device)
+    qnn = dqn.QNN(h, w, input_frames=config.BUNDLED_FRAMES, outputs=action_space.n).to(
+        device
+    )
+    target_nn = dqn.QNN(
+        h, w, input_frames=config.BUNDLED_FRAMES, outputs=action_space.n
+    ).to(device)
     target_nn.load_state_dict(qnn.state_dict())
     target_nn.eval()
 
@@ -124,7 +128,9 @@ def main():
             )
             actions = left_action_space.to_action_list(action_id.item(), info)
 
-            next_observation, reward, done, info = step(env, actions, players=player_count)
+            next_observation, reward, done, info = step(
+                env, actions, players=player_count
+            )
             reward = reward[0] if player_count == 2 else reward
 
             memory.push(
