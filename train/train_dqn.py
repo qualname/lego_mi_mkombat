@@ -112,7 +112,9 @@ def main():
         )
 
         env.reset()
-        observation, *_ = step(env, DO_NOTHING_X_TIMES, players=player_count)  # TODO
+        observation, *_ = step(
+            env, left_action_space.do_nothing(), players=player_count
+        )
 
         done = False
         while not done:

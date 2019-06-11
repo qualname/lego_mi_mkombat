@@ -50,8 +50,11 @@ class ActionSpace:
             idx = _TO_IDX[move_id]
             act[:, idx] = 1
         else:
-            indices = COMBOS[self.char_name][move_id - len(_TO_IDX)]
+            indices = _COMBOS[self.char_name][move_id - len(_TO_IDX)]
             for i, idx in enumerate(indices):
                 act[i, idx] = 1
 
         return act
+
+    def do_nothing(self) -> numpy.ndarray:
+        return numpy.zeros((self.in_frames, self.orig_n), dtype=numpy.int8)
