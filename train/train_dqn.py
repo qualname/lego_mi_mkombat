@@ -121,8 +121,9 @@ def main():
             env, left_action_space.do_nothing(), players=player_count
         )
 
-        done = False
-        while not done:
+        # if the characters did no dmg to eachother in ~3930 frames
+        # the game ends in a draw so we also stop the episode
+        for _ in range(3920 // config.BUNDLED_FRAMES):
             action_id = qnn.sample_action(
                 observation.unsqueeze(0), left_action_space, temperature
             )
@@ -144,6 +145,9 @@ def main():
             )
 
             observation = next_observation
+
+            if done:
+                break
 
         if len(memory) > config.BUFFER_LIMIT // 10:
             beta = 0.4  # TODO: annealing 0.4 -> 1.0
