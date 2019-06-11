@@ -67,14 +67,14 @@ def step(env, left_actions, right_actions=None, players=2):
 
     if len(left_actions) == 1:
         left, right = left_actions[0], right_actions[0]
-        observation, reward, done, _ = env.step(left.tolist() + right.tolist())
-        return obs_to_gpu(observation), reward, done
+        observation, reward, done, info = env.step(left.tolist() + right.tolist())
+        return obs_to_gpu(observation), reward, done, info
 
     states = (
         env.step(left.tolist() + right.tolist())
         for left, right in zip(left_actions, right_actions)
     )
-    observations, rewards, dones, _ = zip(*states)
+    observations, rewards, dones, info = zip(*states)
 
     observations = torch.cat([obs_to_gpu(ob) for ob in observations], 0)
     if players == 2:
@@ -83,7 +83,7 @@ def step(env, left_actions, right_actions=None, players=2):
         reward = tuple(sum(rewards), float('inf'))
     done = any(dones)
 
-    return observations, reward, done
+    return observations, reward, done, info[-1]
 
 
 def main():
@@ -95,6 +95,7 @@ def main():
         state=str(config.STATE_PATH.resolve()),
         players=player_count,
         scenario=str(config.SCENARIO_PATH.resolve()),
+        info=str(config.INFO_PATH.resolve()),
     )
     env.reset()
 
@@ -112,7 +113,7 @@ def main():
         )
 
         env.reset()
-        observation, *_ = step(
+        observation, *_, info = step(
             env, left_action_space.do_nothing(), players=player_count
         )
 
@@ -121,9 +122,9 @@ def main():
             action_id = qnn.sample_action(
                 observation.unsqueeze(0), left_action_space, temperature
             )
-            actions = left_action_space.to_action_list(action_id.item())
+            actions = left_action_space.to_action_list(action_id.item(), info)
 
-            next_observation, reward, done = step(env, actions, players=player_count)
+            next_observation, reward, done, info = step(env, actions, players=player_count)
             reward = reward[0] if player_count == 2 else reward
 
             memory.push(

@@ -55,9 +55,12 @@ class ActionSpace:
         self.n = len(_TO_IDX) + len(_COMBOS[char_name])
         self.orig_n = num_of_outputs
 
-        self.facing_right = True  # TODO
+        self.facing_right = True
 
-    def to_action_list(self, move_id: int) -> numpy.ndarray:
+    def to_action_list(self, move_id: int, info: dict) -> numpy.ndarray:
+        diff = info['enemy_x_position'] - info['x_position']
+        self.facing_right = diff > 0
+
         act = numpy.zeros((self.in_frames, self.orig_n), dtype=numpy.int8)
 
         if move_id < len(_TO_IDX):
