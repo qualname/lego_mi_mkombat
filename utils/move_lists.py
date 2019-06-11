@@ -11,9 +11,18 @@ from .controller import (
     _SQUAT,
 )
 
+FORWARD = _MOVE_RIGHT  # TODO
+BACK = _MOVE_LEFT      # TODO
+LOW_PUNCH = _PUNCH
+HIGH_PUNCH = _PUNCH
 
-# TODO
-_COMBOS = {'SubZero': []}
+_COMBOS = {
+    'SubZero': [
+        [_SQUAT, FORWARD, [FORWARD, LOW_PUNCH]],
+        [_SQUAT, BACK, [BACK, _LOW_KICK]],
+        [[_LOW_KICK, _HIGH_KICK, BACK]],
+    ],
+}
 
 
 _TO_IDX = {
@@ -38,10 +47,15 @@ class ActionSpace:
     """
 
     def __init__(self, char_name: str, num_of_outputs: int, in_frames: int) -> None:
+        assert char_name in _COMBOS.keys()
+        assert in_frames >= len(max(_COMBOS[char_name], key=len))
+
         self.char_name = char_name
         self.in_frames = in_frames
         self.n = len(_TO_IDX) + len(_COMBOS[char_name])
         self.orig_n = num_of_outputs
+
+        self.facing_right = True  # TODO
 
     def to_action_list(self, move_id: int) -> numpy.ndarray:
         act = numpy.zeros((self.in_frames, self.orig_n), dtype=numpy.int8)
@@ -52,9 +66,27 @@ class ActionSpace:
         else:
             indices = _COMBOS[self.char_name][move_id - len(_TO_IDX)]
             for i, idx in enumerate(indices):
+                idx = self.resolve_forwards_and_backs(idx)
                 act[i, idx] = 1
 
         return act
 
     def do_nothing(self) -> numpy.ndarray:
         return numpy.zeros((self.in_frames, self.orig_n), dtype=numpy.int8)
+
+    def resolve_forwards_and_backs(self, command):
+        if isinstance(command, list):
+            if FORWARD in command:
+                idx = command.index(FORWARD)
+                command[idx] = _MOVE_RIGHT if self.facing_right else _MOVE_LEFT
+            elif BACK in command:
+                idx = command.index(BACK)
+                command[idx] = _MOVE_LEFT if self.facing_right else _MOVE_RIGHT
+
+        else:
+            if FORWARD == command:
+                command = _MOVE_RIGHT if self.facing_right else _MOVE_LEFT
+            elif BACK == command:
+                command = _MOVE_LEFT if self.facing_right else _MOVE_RIGHT
+
+        return command
