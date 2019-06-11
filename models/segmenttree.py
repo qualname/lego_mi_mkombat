@@ -7,7 +7,8 @@ class SegmentTree:
         self.operation = operation
         self.values = [neutral_elem] * (2 * self.capacity)
 
-    def query(self, start, end):  # TODO: timeit
+    def query(self, start, end):
+        # return self._q_iterative(start, end - 1) # recursive is ~10-15 times faster :(
         return self._q_recursive(start, end - 1, 1, 0, self.capacity - 1)
 
     def _q_recursive(self, start, end, node, start_node, end_node):
