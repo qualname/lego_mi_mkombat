@@ -82,6 +82,8 @@ class PrioritizedReplayMemory:
         return samples, weights, indices
 
     def __len__(self):
+        if self.memory[-1] is None:
+            return self.memory_pos
         return len(self.memory)
 
     def update(self, indices, priorities):
