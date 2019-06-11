@@ -111,7 +111,7 @@ def main():
 
     qnn, target_nn, memory, optimizer = init(env.get_screen(), left_action_space)
 
-    for episode in range(10_000):
+    for episode in range(1, 10_000):
         temperature = config.MIN_EPSILON + (1.0 - config.MIN_EPSILON) / math.exp(
             episode / config.DECAY
         )
