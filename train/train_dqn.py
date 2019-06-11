@@ -56,7 +56,7 @@ def obs_to_gpu(screen):
     screen = screen.transpose((2, 0, 1))
     screen = numpy.ascontiguousarray(screen, dtype=numpy.float32) / 255
     screen = torch.from_numpy(screen)
-    return screen.unsqueeze(0).to(device)
+    return screen.to(device)
 
 
 def main():
@@ -89,7 +89,9 @@ def main():
 
         done = False
         while not done:
-            action_id = qnn.sample_action(observation, left_action_space, temperature)
+            action_id = qnn.sample_action(
+                observation.unsqueeze(0), left_action_space, temperature
+            )
             actions = left_action_space.to_action_list(action_id.item())
 
             next_observation, reward, done, _ = env.step(actions[0].tolist() + [0] * 12)
@@ -98,10 +100,10 @@ def main():
 
             memory.push(
                 (
-                    observation,
+                    observation.unsqueeze(0),
                     action_id,
                     torch.tensor([reward], device=device, dtype=torch.float),
-                    next_observation,
+                    next_observation.unsqueeze(0),
                     torch.tensor([done], device=device, dtype=torch.float),
                 )
             )
