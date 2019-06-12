@@ -5,9 +5,9 @@ import retro
 
 
 ENV_NAME = 'MortalKombatII-Genesis'
-STATE_PATH = Path(f'../states/0player_level1.state')
+STATE_PATH = Path(f'../../states/0player_level1.state')
 
-BACKGROUND = cv2.imread('../assets/level1_background.png')
+BACKGROUND = cv2.imread('../../assets/level1_background.png')
 
 
 def main():
